@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Missed-Call Recovery</title>
+<meta name="description" content="Case study: turning missed calls into tracked leads for a home services company on RingCentral and BuilderPrime.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050505;
+    --surface: #0E0E0E;
+    --card: #101010;
+    --line: #262626;
+    --grid: #1c1c1c;
+    --ink: #ffffff;
+    --ink-2: #c9c9c9;
+    --muted: #8c8c8c;
+    --blue: #2E90C8;      /* data: answered / called back */
+    --gold: #B98700;      /* data: the gap (hatched) */
+    --gold-dark: #3d2d00;
+    --rule-blue: #2E90C8;
+    --rule-gold: #C99A1A;
+    --rule-gray: #5a5a5a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); }
+  body { font-family: 'Poppins', system-ui, sans-serif; font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 16px 56px; }
+
+  /* Header */
+  header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+           padding-bottom: 16px; border-bottom: 2px solid var(--rule-blue); }
+  .title { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+  .sub { color: var(--ink-2); font-size: 16px; }
+  .badge { border: 1px solid var(--line); background: var(--surface); padding: 8px 14px; font-size: 14px; color: var(--ink-2); white-space: nowrap; }
+  .badge b { color: var(--ink); font-weight: 600; }
+
+  h2 { margin: 0 0 4px; font-size: 13px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2); }
+  .section { margin-top: 28px; }
+  .lede { color: var(--muted); font-size: 13.5px; margin: 0 0 16px; }
+
+  /* KPI tiles */
+  .kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-top: 28px; }
+  .kpis.four { grid-template-columns: repeat(4, 1fr); margin-top: 0; }
+  .kpi { background: var(--card); border: 1px solid var(--line); padding: 22px 22px 20px; min-width: 0; }
+  .kpi .label { font-size: 12.5px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+  .kpi .value { font-size: 38px; font-weight: 800; line-height: 1.15; margin: 10px 0 6px; letter-spacing: -.01em; }
+  .kpi .value small { font-size: 18px; font-weight: 700; color: var(--ink-2); margin-left: 2px; }
+  .kpi .note { font-size: 13px; color: var(--muted); }
+
+  /* Panels */
+  .panel { background: var(--surface); border: 1px solid var(--line); padding: 26px 28px 24px; }
+  .row2 { display: grid; grid-template-columns: 1.45fr 1fr; gap: 16px; }
+
+  /* Column chart: answer rate by hour */
+  .cols { position: relative; height: 230px; margin-top: 14px; padding-left: 34px; }
+  .cols .yaxis { position: absolute; left: 0; top: 0; bottom: 28px; width: 34px; }
+  .cols .yaxis span { position: absolute; right: 8px; transform: translateY(50%); font-size: 11px; color: var(--muted); }
+  .cols .plot { position: absolute; left: 34px; right: 0; top: 0; bottom: 28px; border-bottom: 1px solid #3a3a3a; }
+  .cols .gridline { position: absolute; left: 0; right: 0; height: 1px; background: var(--grid); }
+  .cols .after { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(135deg, rgba(185,135,0,.10) 0 6px, transparent 6px 12px);
+                 border-left: 1px dashed transparent; }
+  .cols .after-label { position: absolute; top: 4px; right: 6px; font-size: 11.5px; color: var(--ink-2); text-align: right; line-height: 1.3; }
+  .cols .bars { position: absolute; inset: 0; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; align-items: end; }
+  .cols .slot { position: relative; height: 100%; display: flex; align-items: flex-end; justify-content: center; cursor: default; }
+  .cols .bar { width: min(24px, 62%); background: var(--blue); border-radius: 4px 4px 0 0; min-height: 2px; }
+  .cols .cap { position: absolute; font-size: 11.5px; font-weight: 600; color: var(--ink); transform: translateY(-4px); }
+  .cols .xaxis { position: absolute; left: 34px; right: 0; bottom: 0; height: 24px; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; }
+  .cols .xaxis span { text-align: center; font-size: 11px; color: var(--muted); padding-top: 6px; }
+
+  /* Horizontal bars: outcome of missed first-time callers */
+  .hbars { margin-top: 18px; display: grid; gap: 18px; }
+  .hbar .top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 7px; }
+  .hbar .name { font-size: 14px; font-weight: 500; }
+  .hbar .n { font-size: 12px; color: var(--muted); }
+  .hbar .track { position: relative; height: 26px; background: #1a1a1a; }
+  .hbar .fill { height: 100%; border-radius: 0 4px 4px 0; }
+  .hbar .fill.blue { background: var(--blue); }
+  .hbar .fill.gap { background: repeating-linear-gradient(135deg, var(--gold) 0 7px, var(--gold-dark) 7px 14px); min-width: 6px; }
+  .hbar .val { position: absolute; top: 50%; transform: translateY(-50%); font-weight: 700; font-size: 15px; color: var(--ink); }
+  .big-note { margin-top: 18px; font-size: 14px; color: var(--ink-2); }
+  .big-note b { color: var(--ink); }
+
+  /* Steps */
+  .steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; margin-top: 16px; counter-reset: s; }
+  .step { position: relative; background: var(--card); border: 1px solid var(--line); padding: 20px 18px 18px; }
+  .step + .step { border-left: none; }
+  .step .num { font-size: 12px; font-weight: 700; letter-spacing: .14em; color: var(--blue); }
+  .step h3 { margin: 8px 0 6px; font-size: 15.5px; font-weight: 700; line-height: 1.3; }
+  .step p { margin: 0; font-size: 13px; color: var(--ink-2); }
+  .step::after { content: ""; position: absolute; top: 50%; right: -7px; width: 12px; height: 12px; background: var(--card);
+                 border-top: 1px solid var(--line); border-right: 1px solid var(--line); transform: translateY(-50%) rotate(45deg); z-index: 1; }
+  .step:last-child::after { display: none; }
+
+  /* Callouts */
+  .callout { margin-top: 16px; background: var(--surface); border-left: 3px solid var(--rule-blue); padding: 16px 20px; font-size: 14.5px; color: var(--ink-2); }
+  .callout b { color: var(--ink); font-weight: 600; }
+  .callout.gold { border-left-color: var(--rule-gold); background: #0f0d06; }
+  .callout.gray { border-left-color: var(--rule-gray); }
+  .callouts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .callouts .callout { margin-top: 0; }
+
+  footer { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+
+  /* Tooltip */
+  .tip { position: fixed; pointer-events: none; z-index: 10; background: #1b1b1b; border: 1px solid #333; padding: 8px 10px; font-size: 12.5px; color: var(--ink); opacity: 0; transition: opacity .08s; white-space: nowrap; }
+  .tip .k { color: var(--muted); }
+
+  /* Table view (accessibility) */
+  details { margin-top: 12px; font-size: 13px; color: var(--muted); }
+  details summary { cursor: pointer; }
+  table { border-collapse: collapse; margin-top: 8px; font-size: 12.5px; color: var(--ink-2); }
+  th, td { border-bottom: 1px solid var(--grid); padding: 4px 12px 4px 0; text-align: right; }
+  th:first-child, td:first-child { text-align: left; }
+
+  @media (max-width: 1080px) {
+    .kpis { grid-template-columns: repeat(3, 1fr); }
+    .kpis.four { grid-template-columns: repeat(2, 1fr); }
+    .row2 { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr; }
+    .step + .step { border-left: 1px solid var(--line); border-top: none; }
+    .step::after { top: auto; bottom: -7px; right: 50%; transform: translateX(50%) rotate(135deg); }
+  }
+  @media (max-width: 640px) {
+    .wrap { padding-top: 20px; }
+    h1 { font-size: 19px; }
+    .sub { font-size: 14px; }
+    .kpis, .kpis.four { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .kpi { padding: 16px 14px; }
+    .kpi .value { font-size: 28px; }
+    .panel { padding: 20px 16px 18px; }
+    .callouts { grid-template-columns: 1fr; }
+    .cols .cap { font-size: 10px; }
+    .cols .xaxis span { font-size: 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="title">
+      <h1>Missed-Call Recovery</h1>
+      <span class="sub">— Case study: home services company on RingCentral + BuilderPrime</span>
+    </div>
+    <div class="badge">Live since: <b>2026-10-16</b></div>
+  </header>
+
+  <!-- The problem -->
+  <section class="kpis" aria-label="What their phone data showed">
+    <div class="kpi"><div class="label">Calls per business day</div><div class="value">~20</div><div class="note">Inbound to the main line</div></div>
+    <div class="kpi"><div class="label">Calls answered</div><div class="value">55%</div><div class="note">62% in office hours, almost none after 5 PM</div></div>
+    <div class="kpi"><div class="label">Leads that start by phone</div><div class="value">45%</div><div class="note">Of new CRM leads began with a call</div></div>
+    <div class="kpi"><div class="label">Never called back</div><div class="value">~7<small>/wk</small></div><div class="note">First-time callers who never reached anyone</div></div>
+    <div class="kpi"><div class="label">Leads lost</div><div class="value">10–14<small>/mo</small></div><div class="note">≈ $2–3k a month of leads already paid for</div></div>
+  </section>
+
+  <section class="section row2">
+    <div class="panel">
+      <h2>Answer rate by hour — weekdays</h2>
+      <p class="lede">Share of inbound calls picked up live, 8 weeks of the company's own call log.</p>
+      <div class="cols" id="hourly" role="img" aria-label="Answer rate by hour: 64 to 73 percent from 8 AM to 3 PM, 40 percent at 4 PM, 4 percent at 5 PM, 0 percent after 6 PM."></div>
+      <details><summary>Show as table</summary><table id="hourly-table"><thead><tr><th>Hour</th><th>Calls</th><th>Answered</th></tr></thead><tbody></tbody></table></details>
+    </div>
+    <div class="panel">
+      <h2>What happens to a missed first-time caller</h2>
+      <p class="lede">Callers whose first call went unanswered and who never got through later.</p>
+      <div class="hbars">
+        <div class="hbar">
+          <div class="top"><span class="name">Someone called them back</span><span class="n">64 callers</span></div>
+          <div class="track"><div class="fill blue" style="width:47%"></div><span class="val" style="left:calc(47% + 10px)">47% became leads</span></div>
+        </div>
+        <div class="hbar">
+          <div class="top"><span class="name">Nobody called them back</span><span class="n">57 callers</span></div>
+          <div class="track"><div class="fill gap" style="width:2%"></div><span class="val" style="left:calc(2% + 14px)">2% became leads</span></div>
+        </div>
+      </div>
+      <p class="big-note">The difference is <b>one callback</b>. Speed mattered less than whether it happened at all.</p>
+    </div>
+  </section>
+
+  <!-- What we built -->
+  <section class="section">
+    <h2>What we built</h2>
+    <p class="lede">Inside the tools the company already pays for. No new app for the team to learn.</p>
+    <div class="steps">
+      <div class="step"><div class="num">01</div><h3>Calls ring in order</h3><p>Day line first, then the evening line, then the owner, about 20 seconds each. After hours: a closed-hours greeting and voicemail.</p></div>
+      <div class="step"><div class="num">02</div><h3>Missed caller becomes a lead</h3><p>A call from a number not in the CRM creates a lead in BuilderPrime with source "Phone", within minutes.</p></div>
+      <div class="step"><div class="num">03</div><h3>Whoever's on the phones is told</h3><p>A RingCentral message and an email with the caller's number, plus whether they left a voicemail.</p></div>
+      <div class="step"><div class="num">04</div><h3>Callback is tracked, owner backs it up</h3><p>A real conversation closes it out. Nobody reached them within an hour? The owner gets an alert.</p></div>
+      <div class="step"><div class="num">05</div><h3>Daily scorecard</h3><p>Every morning: calls by hour and day, answer rate, callback speed, who's still waiting, calls that became appointments.</p></div>
+    </div>
+  </section>
+
+  <!-- Replay -->
+  <section class="section">
+    <h2>The last 8 weeks, replayed through it</h2>
+    <p class="lede">What the system would have done with the company's real calls from Aug 18 to Oct 12, 2026.</p>
+    <div class="kpis four">
+      <div class="kpi"><div class="label">New callers caught</div><div class="value">148</div><div class="note">Missed first-time callers logged as leads and flagged for callback</div></div>
+      <div class="kpi"><div class="label">Callback alerts</div><div class="value">~6<small>/day</small></div><div class="note">To whoever was on the phones at the time</div></div>
+      <div class="kpi"><div class="label">Owner escalations</div><div class="value">~2.5<small>/day</small></div><div class="note">Not reached within an hour. Falls as callbacks get faster</div></div>
+      <div class="kpi"><div class="label">Junk kept out</div><div class="value">15</div><div class="note">Robocallers and vendors flagged, not added to the CRM</div></div>
+    </div>
+  </section>
+
+  <section class="section callouts">
+    <div class="callout"><b>Runs on what you already have.</b> RingCentral, BuilderPrime and a Google Workspace account. No new software, no new logins for the team.</div>
+    <div class="callout"><b>Your data stays yours.</b> The automation, the alerts and the daily sheet all live in the company's own Google account.</div>
+    <div class="callout gray"><b>What it takes.</b> RingCentral admin access and a BuilderPrime API key. About a week to set up, starting with the same call-log analysis on your own numbers.</div>
+    <div class="callout gray"><b>What the owner sees.</b> One sheet that answers "did anyone call them back?" and the numbers for next year's budget, without asking the team.</div>
+  </section>
+
+  <div class="callout gold"><b>Data note:</b> Figures come from the company's RingCentral call log (Aug 18 – Oct 12, 2026), matched to BuilderPrime by phone number. "Leads lost" applies the 33–47% callback conversion to callers who were never called back, at the company's average cost per lead. The system went live on Oct 16, 2026; live results will replace the projections.</div>
+
+  <footer>
+    <span>Prepared for Clear Results · October 2026</span>
+    <span>Company details anonymized</span>
+  </footer>
+</div>
+
+<div class="tip" id="tip"></div>
+
+<script>
+  // Weekday answer rate by hour, 2026-08-18 to 2026-10-12 (external inbound calls).
+  const hours = [
+    { h: '8a', label: '8 AM', calls: 49, pct: 73 }, { h: '9a', label: '9 AM', calls: 86, pct: 64 },
+    { h: '10a', label: '10 AM', calls: 108, pct: 64 }, { h: '11a', label: '11 AM', calls: 85, pct: 64 },
+    { h: '12p', label: '12 PM', calls: 69, pct: 68 }, { h: '1p', label: '1 PM', calls: 79, pct: 62 },
+    { h: '2p', label: '2 PM', calls: 77, pct: 64 }, { h: '3p', label: '3 PM', calls: 92, pct: 64 },
+    { h: '4p', label: '4 PM', calls: 77, pct: 40 }, { h: '5p', label: '5 PM', calls: 24, pct: 4 },
+    { h: '6p', label: '6 PM', calls: 15, pct: 0 }, { h: '7p', label: '7 PM', calls: 3, pct: 0 },
+  ];
+  const labelled = new Set(['8a', '4p', '5p']);
+  const el = document.getElementById('hourly');
+  const firstAfter = hours.findIndex(d => d.h === '4p');
+  const after = (100 * firstAfter / hours.length);
+  el.innerHTML = `
+    <div class="yaxis">${[0, 25, 50, 75, 100].map(v => `<span style="bottom:${v}%">${v}%</span>`).join('')}</div>
+    <div class="plot">
+      ${[25, 50, 75, 100].map(v => `<div class="gridline" style="bottom:${v}%"></div>`).join('')}
+      <div class="after" style="left:${after}%;right:0"></div>
+      <div class="after-label" style="left:${after}%">Phones go quiet<br>after 4 PM</div>
+      <div class="bars">${hours.map(d => `
+        <div class="slot" data-tip="${d.label}|${d.pct}% answered|${d.calls} calls">
+          <div class="bar" style="height:${Math.max(d.pct, 0.8)}%"></div>
+          ${labelled.has(d.h) ? `<span class="cap" style="bottom:${Math.max(d.pct, 1)}%">${d.pct}%</span>` : ''}
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="xaxis">${hours.map(d => `<span>${d.h}</span>`).join('')}</div>`;
+  document.querySelector('#hourly-table tbody').innerHTML =
+    hours.map(d => `<tr><td>${d.label}</td><td>${d.calls}</td><td>${d.pct}%</td></tr>`).join('');
+
+  // Hover tooltip for the columns.
+  const tip = document.getElementById('tip');
+  document.querySelectorAll('[data-tip]').forEach(s => {
+    s.addEventListener('mousemove', e => {
+      const [t, a, b] = s.dataset.tip.split('|');
+      tip.innerHTML = `<b>${t}</b><br>${a}<br><span class="k">${b}</span>`;
+      tip.style.left = Math.min(e.clientX + 14, window.innerWidth - 150) + 'px';
+      tip.style.top = (e.clientY - 10) + 'px';
+      tip.style.opacity = 1;
+    });
+    s.addEventListener('mouseleave', () => { tip.style.opacity = 0; });
+  });
+</script>
+</body>
+</html>
