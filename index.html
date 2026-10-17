@@ -104,6 +104,16 @@
   .callouts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .callouts .callout { margin-top: 0; }
 
+  /* Timeline */
+  .timeline { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 16px; border: 1px solid var(--line); background: var(--card); }
+  .tl { position: relative; padding: 16px 18px 16px 34px; }
+  .tl + .tl { border-left: 1px solid var(--line); }
+  .tl::before { content: ""; position: absolute; left: 16px; top: 22px; width: 9px; height: 9px; border-radius: 50%; background: var(--blue); }
+  .tl .d { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+  .tl .t { font-size: 14px; color: var(--ink); margin-top: 4px; font-weight: 500; line-height: 1.4; }
+  @media (max-width: 1080px) { .timeline { grid-template-columns: 1fr 1fr; } .tl:nth-child(3) { border-left: none; } .tl:nth-child(n+3) { border-top: 1px solid var(--line); } }
+  @media (max-width: 640px) { .timeline { grid-template-columns: 1fr; } .tl + .tl { border-left: none; border-top: 1px solid var(--line); } }
+
   footer { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
 
   /* Tooltip */
@@ -208,6 +218,17 @@
     </div>
   </section>
 
+  <section class="section">
+    <h2>From go-ahead to live in 3 business days</h2>
+    <p class="lede">Everything runs on the company's existing accounts, so there was nothing to buy or install.</p>
+    <div class="timeline">
+      <div class="tl"><div class="d">Oct 13</div><div class="t">Call-log analysis shared, owner approves the build</div></div>
+      <div class="tl"><div class="d">Oct 14–15</div><div class="t">Built and run in test mode on live calls, every decision checked</div></div>
+      <div class="tl"><div class="d">Oct 16</div><div class="t">Live: missed callers become CRM leads, alerts and daily scorecard on</div></div>
+      <div class="tl"><div class="d">Oct 17</div><div class="t">Main line switched to the new ring order and after-hours voicemail</div></div>
+    </div>
+  </section>
+
   <section class="section callouts">
     <div class="callout"><b>Runs on what you already have.</b> RingCentral, BuilderPrime and a Google Workspace account. No new software, no new logins for the team.</div>
     <div class="callout"><b>Your data stays yours.</b> The automation, the alerts and the daily sheet all live in the company's own Google account.</div>
@@ -215,7 +236,7 @@
     <div class="callout gray"><b>What the owner sees.</b> One sheet that answers "did anyone call them back?" and the numbers for next year's budget, without asking the team.</div>
   </section>
 
-  <div class="callout gold"><b>Data note:</b> Figures come from the company's RingCentral call log (Aug 18 – Oct 12, 2026), matched to BuilderPrime by phone number. "Leads lost" applies the 33–47% callback conversion to callers who were never called back, at the company's average cost per lead. The system went live on Oct 16, 2026; live results will replace the projections.</div>
+  <div class="callout gold"><b>Data note:</b> Figures come from the company's RingCentral call log (Aug 18 – Oct 12, 2026), matched to BuilderPrime by phone number. "Leads lost" applies the 33–47% callback conversion to callers who were never called back, at the company's average cost per lead. Missed-call capture went live on Oct 16, 2026 and the new ring order on Oct 17; live results will replace the projections after a few weeks.</div>
 
   <footer>
     <span>Prepared for Clear Results · October 2026</span>
