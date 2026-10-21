@@ -105,13 +105,13 @@
   .callouts .callout { margin-top: 0; }
 
   /* Timeline */
-  .timeline { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 16px; border: 1px solid var(--line); background: var(--card); }
+  .timeline { display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 16px; border: 1px solid var(--line); background: var(--card); }
   .tl { position: relative; padding: 16px 18px 16px 34px; }
   .tl + .tl { border-left: 1px solid var(--line); }
   .tl::before { content: ""; position: absolute; left: 16px; top: 22px; width: 9px; height: 9px; border-radius: 50%; background: var(--blue); }
   .tl .d { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
   .tl .t { font-size: 14px; color: var(--ink); margin-top: 4px; font-weight: 500; line-height: 1.4; }
-  @media (max-width: 1080px) { .timeline { grid-template-columns: 1fr 1fr; } .tl:nth-child(3) { border-left: none; } .tl:nth-child(n+3) { border-top: 1px solid var(--line); } }
+  @media (max-width: 1080px) { .timeline { grid-template-columns: 1fr 1fr; } .tl:nth-child(3), .tl:nth-child(5) { border-left: none; } .tl:nth-child(n+3) { border-top: 1px solid var(--line); } }
   @media (max-width: 640px) { .timeline { grid-template-columns: 1fr; } .tl + .tl { border-left: none; border-top: 1px solid var(--line); } }
 
   footer { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
@@ -198,10 +198,10 @@
     <h2>What we built</h2>
     <p class="lede">Inside the tools the company already pays for. No new app for the team to learn.</p>
     <div class="steps">
-      <div class="step"><div class="num">01</div><h3>Calls ring in order</h3><p>Day line first, then the evening line, then the owner, about 20 seconds each. After hours, calls go straight to voicemail.</p></div>
-      <div class="step"><div class="num">02</div><h3>Missed caller becomes a lead</h3><p>A call from a number not in the CRM creates a lead in BuilderPrime with source "Phone", within minutes.</p></div>
-      <div class="step"><div class="num">03</div><h3>Whoever's on the phones is told</h3><p>A RingCentral message and an email with the caller's number, plus whether they left a voicemail.</p></div>
-      <div class="step"><div class="num">04</div><h3>Callback is tracked, owner backs it up</h3><p>A real conversation closes it out. Nobody reached them within an hour? The owner gets an alert.</p></div>
+      <div class="step"><div class="num">01</div><h3>Calls ring in order</h3><p>Day line first, then the evening line, then the owner, about 20 seconds each (from 4 PM the evening line rings first). After hours, calls go straight to voicemail.</p></div>
+      <div class="step"><div class="num">02</div><h3>Missed caller becomes a lead</h3><p>A missed call or voicemail from a number not in the CRM becomes a BuilderPrime lead within about 5 minutes, in its own "Missed Call – Unverified" status.</p></div>
+      <div class="step"><div class="num">03</div><h3>Whoever's on the phones is told</h3><p>A RingCentral message and an email with the caller's number, plus whether they left a voicemail. Spam? Set it to "Not a Lead" and that number is blocked.</p></div>
+      <div class="step"><div class="num">04</div><h3>Callback is tracked, owner backs it up</h3><p>A callback from RingCentral that connects closes it out, and every call is logged on the lead. Nobody reached them within an hour? The owner gets an email.</p></div>
       <div class="step"><div class="num">05</div><h3>Daily scorecard</h3><p>Every morning: calls by hour and day, answer rate, callback speed, who's still waiting, calls that became appointments.</p></div>
     </div>
   </section>
@@ -226,6 +226,7 @@
       <div class="tl"><div class="d">Oct 14–15</div><div class="t">Built and run in test mode on live calls, every decision checked</div></div>
       <div class="tl"><div class="d">Oct 16</div><div class="t">Live: missed callers become CRM leads, alerts and daily scorecard on</div></div>
       <div class="tl"><div class="d">Oct 17</div><div class="t">Main line switched to the new ring order and after-hours voicemail</div></div>
+      <div class="tl"><div class="d">Oct 18–19</div><div class="t">Spam kept out: own lead status, "Not a Lead" blocks the number. Handed over</div></div>
     </div>
   </section>
 
